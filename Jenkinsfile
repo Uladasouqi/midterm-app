@@ -1,40 +1,35 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'Maven 3'
-        jdk 'JDK17'
-    }
-
     stages {
         stage('Checkout') {
             steps {
-                echo 'Cloning the GitHub repository...'
+                echo 'Pulling source code from GitHub...'
                 checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Build Fat JAR') {
             steps {
-                echo 'Building the Spring Boot fat JAR...'
+                echo 'Building project with Maven...'
                 sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Archive') {
+        stage('Archive Artifact') {
             steps {
-                echo 'Archiving the JAR artifact...'
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                echo 'Archiving the generated JAR file...'
+                archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
             }
         }
     }
 
     post {
         success {
-            echo '✅ Build completed successfully!'
+            echo '✅ Build succeeded! Fat JAR created and archived.'
         }
         failure {
-            echo '❌ Build failed. Check logs for errors.'
+            echo '❌ Build failed. Check the console output for errors.'
         }
     }
 }
